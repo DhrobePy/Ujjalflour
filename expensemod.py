@@ -443,7 +443,7 @@ def user_profile(username):
         "Address": [user_data["address"]],
         "Reference": [user_data["reference"]],
         "Job Desk & Task": [user_data["job_desk_task"]],
-        "Start Date": [user_data["start_date"]],
+        #"Start Date": [user_data["start_date"]],
         "Present Salary":[user_data["present_salary"]],
     }
 
