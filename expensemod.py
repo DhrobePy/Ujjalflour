@@ -444,7 +444,7 @@ def user_profile(username):
         "Reference": [user_data["reference"]],
         "Job Desk & Task": [user_data["job_desk_task"]],
         #"Start Date": [user_data["start_date"]],
-        "Present Salary":[user_data["present_salary"]],
+        #"Present Salary":[user_data["present_salary"]],
     }
 
     df = pd.DataFrame(profile_data)
