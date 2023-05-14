@@ -494,7 +494,11 @@ def admin_dashboard():
 
     elif dash=="Distribution House management":
         st.write("Detailed Management of Distribution House")
-        
+     
+    if st.button("Logout"):
+        st.session_state.logged_in = False
+        st.session_state.username = None
+        login()
     
 
 def user_dashboard(username):
