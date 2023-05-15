@@ -89,6 +89,32 @@ def show_sent_back_expenses():
 
 
 ##############3 ends here############
+def bank_account_details_form():
+    with st.expander("Bank Account Details", expanded=False):
+        st.subheader("Please enter your bank account details")
+
+        bank_name = st.text_input("Bank Name")
+        branch_name = st.text_input("Branch Name")
+        account_name = st.text_input("Account Name")
+        available_balance = st.number_input("Available Balance", value=0.0, format='%f')
+
+        if st.button("Save"):
+            save_bank_account_details(bank_name, branch_name, account_name, available_balance)
+
+
+def save_bank_account_details(bank_name, branch_name, account_name, available_balance):
+    bank_details_ref = db.collection("bank_details")
+
+    bank_details_ref.add({
+        "bank_name": bank_name,
+        "branch_name": branch_name,
+        "account_name": account_name,
+        "available_balance": available_balance,
+    })
+
+    st.success("Bank account details saved successfully.")
+
+
 #####2######### pending task in admin panel
 
 def pending_notification():
@@ -467,6 +493,7 @@ def admin_dashboard():
         delete_user_form()
         petty_home()
         petty_available_home()
+        bank_account_details_form()
 
     elif dash=="Expense Management":
         choice = option_menu(
