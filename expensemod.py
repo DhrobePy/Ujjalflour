@@ -493,15 +493,11 @@ def display_user_details(user_data):
     if user_data is None:
         return
 
-    # Exclude 'password' and 'id' fields
-    del user_data['password']
-    del user_data['id']
-
     # Create a dataframe for display
     df = pd.DataFrame(user_data, index=[0])
 
     # Reorder the columns
-    df = df[["username", "full_name", "job_desk_task", "phone_number", "address", "emergency_contact", "reference", "Start Date", "Present Salary"]]
+    df = df[["username", "password", "full_name", "job_desk_task", "phone_number", "address", "emergency_contact", "reference", "Start Date", "Present Salary"]]
 
     # Transpose the dataframe
     df_transposed = df.T
