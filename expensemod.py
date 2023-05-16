@@ -96,23 +96,29 @@ def bank_account_details_form():
         bank_name = st.text_input("Bank Name")
         branch_name = st.text_input("Branch Name")
         account_name = st.text_input("Account Name")
+        account_number = st.text_input("Account Number")
+        account_type_options = ["CD", "SB", "SND", "CC(H)", "Fixed Deposit", "Sanchaypatra"]
+        account_type = st.selectbox("Account Type", options=account_type_options)
         available_balance = st.number_input("Available Balance", value=0.0, format='%f')
 
         if st.button("Save"):
-            save_bank_account_details(bank_name, branch_name, account_name, available_balance)
+            save_bank_account_details(bank_name, branch_name, account_name, account_number, account_type, available_balance)
 
 
-def save_bank_account_details(bank_name, branch_name, account_name, available_balance):
+def save_bank_account_details(bank_name, branch_name, account_name, account_number, account_type, available_balance):
     bank_details_ref = db.collection("bank_details")
 
     bank_details_ref.add({
         "bank_name": bank_name,
         "branch_name": branch_name,
         "account_name": account_name,
+        "account_number": account_number,
+        "account_type": account_type,
         "available_balance": available_balance,
     })
 
     st.success("Bank account details saved successfully.")
+
 
 def bank_account_details_dashboard():
     with st.expander("Bank Account Details", expanded=False):
@@ -139,6 +145,8 @@ def display_bank_account_table(bank_account_details):
         "Bank Name": [],
         "Branch Name": [],
         "Account Name": [],
+        "Account Number": [],
+        "Account Type": [],
         "Available Balance": []
     }
 
@@ -146,10 +154,13 @@ def display_bank_account_table(bank_account_details):
         table_data["Bank Name"].append(bank_data['bank_name'])
         table_data["Branch Name"].append(bank_data['branch_name'])
         table_data["Account Name"].append(bank_data['account_name'])
+        table_data["Account Number"].append(bank_data['account_number'])
+        table_data["Account Type"].append(bank_data['account_type'])
         table_data["Available Balance"].append(bank_data['available_balance'])
 
     df = pd.DataFrame(table_data)
     st.table(df)
+
 
 def delete_bank_account_form():
     with st.form("Delete Bank Account"):
