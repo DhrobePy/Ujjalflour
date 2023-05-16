@@ -662,17 +662,11 @@ def admin_dashboard():
             menu_icon='cast',
             orientation='horizontal')
         if home_option=='User Management':
-            col1, col2, col3, col4= st.beta_columns(4)
-            with col1.expander("Details of all user", expanded=False):
-                with st.expander("Details of all user", expanded=False):
-                    user_petty_cash_summary()
-            with col2.expander("View User Details", expanded=False):
-                user_detail_view()
-            with col3.expander("Create User", expanded=False):
-                create_user_form()
-            with col3.expander("Create User", expanded=False):
-                with st.expander("Delete User", expanded=False):
-                    delete_user_form()
+            with st.expander("Details of all user", expanded=False):
+                user_petty_cash_summary()
+            user_detail_view()
+            create_user_form()
+            delete_user_form()
             
           
         elif home_option=="Bank Account Management":
