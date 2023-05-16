@@ -114,6 +114,42 @@ def save_bank_account_details(bank_name, branch_name, account_name, available_ba
 
     st.success("Bank account details saved successfully.")
 
+def bank_account_details_dashboard():
+    with st.expander("Bank Account Details", expanded=False):
+        st.subheader("Bank Account Details")
+
+        bank_account_details = get_bank_account_details()
+        display_bank_account_table(bank_account_details)
+
+
+def get_bank_account_details():
+    bank_details_ref = db.collection("bank_details").stream()
+
+    bank_account_details = []
+    for bank_detail in bank_details_ref:
+        bank_data = bank_detail.to_dict()
+        bank_data["id"] = bank_detail.id
+        bank_account_details.append(bank_data)
+
+    return bank_account_details
+
+
+def display_bank_account_table(bank_account_details):
+    table_data = {
+        "Bank Name": [],
+        "Branch Name": [],
+        "Account Name": [],
+        "Available Balance": []
+    }
+
+    for bank_data in bank_account_details:
+        table_data["Bank Name"].append(bank_data['bank_name'])
+        table_data["Branch Name"].append(bank_data['branch_name'])
+        table_data["Account Name"].append(bank_data['account_name'])
+        table_data["Available Balance"].append(bank_data['available_balance'])
+
+    df = pd.DataFrame(table_data)
+    st.table(df)
 
 #####2######### pending task in admin panel
 
@@ -494,6 +530,7 @@ def admin_dashboard():
         petty_home()
         petty_available_home()
         bank_account_details_form()
+        bank_account_details_dashboard()
 
     elif dash=="Expense Management":
         choice = option_menu(
