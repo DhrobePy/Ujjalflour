@@ -288,10 +288,22 @@ def submit_expense(username, expense=None):
 
     bill_type = st.selectbox("Bill Type", ["Total Bill", "Subtotal Bill"], index=0 if not expense else ["Total Bill", "Subtotal Bill"].index(expense["bill_type"]))
 
-    if bill_type == "Total Bill":
-        total_bill = st.number_input("Total Bill Amount", min_value=0.0, step=0.01, value=0.0 if not expense else expense["total_bill"])
+    if bill_type == "Subtotal Bill":
+        num_rows = st.session_state.get("num_rows", 1)
+        total_bill = 0.0
+        item_data = []
+        for idx in range(num_rows):
+            item_name, quantity, unit_price, total_amount = subtotal_row(idx)
+            item_data.append((item_name, quantity, unit_price, total_amount))
+            total_bill += total_amount
+
+        if st.button("Add another item"):
+            num_rows += 1
+            st.session_state.num_rows = num_rows
+
+        remarks = generate_remarks(bill_type, item_data)
     else:
-        total_bill = generate_subtotal(expense)
+        total_bill = st.number_input("Total Bill Amount", min_value=0.0, step=0.01, value=0.0 if not expense else expense["total_bill"])
 
     bill_paid = st.number_input("Bill Paid", min_value=0.0, step=0.01, value=0.0 if not expense else expense["bill_paid"])
     payment_method = st.selectbox("Payment Method", ["Cash", "Bank Account"], index=0 if not expense else ["Cash", "Bank Account"].index(expense["payment_method"]))
