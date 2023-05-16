@@ -530,6 +530,9 @@ def user_petty_cash_summary():
         user_data.append(data)
     df_users = pd.DataFrame(user_data)
 
+    # Exclude 'password' and 'id' columns
+    df_users = df_users.drop(columns=['password', 'id'])
+
     # Retrieve petty cash data
     user_petty_cash = defaultdict(lambda: {'amount': 0})
     for entry in petty_cash_ref:
@@ -545,8 +548,12 @@ def user_petty_cash_summary():
     # Replace NaN values with 0
     df['petty_cash_available'] = df['petty_cash_available'].fillna(0)
 
-    # Display the dataframe
-    st.table(df)
+    # Transpose the dataframe
+    df_transposed = df.T
+
+    # Display the transposed dataframe
+    st.table(df_transposed)
+
 
 
 
