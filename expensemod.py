@@ -255,11 +255,13 @@ def show_pending_expenses():
 ####1.
 
 def subtotal_row(index):
-    item_name = st.text_input("Item Name", key=f"item_name_{index}")
-    quantity = st.number_input("Quantity", min_value=0, step=1, key=f"quantity_{index}")
-    unit_price = st.number_input("Unit Price", min_value=0.0, step=0.01, key=f"unit_price_{index}")
+    cols = st.columns(3)
+    item_name = cols[0].text_input("Item Name", key=f"item_name_{index}")
+    quantity = cols[1].number_input("Quantity", min_value=0, step=1, key=f"quantity_{index}")
+    unit_price = cols[2].number_input("Unit Price", min_value=0.0, step=0.01, key=f"unit_price_{index}")
     total_amount = quantity * unit_price
     return item_name, quantity, unit_price, total_amount
+
 
 def generate_remarks(bill_type, item_data):
     if bill_type == "Subtotal Bill" and item_data:
