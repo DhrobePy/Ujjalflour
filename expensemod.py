@@ -569,16 +569,28 @@ def admin_dashboard():
             menu_title=None,
             menu_icon='cast',
             orientation='horizontal')
+#Home Button Functions#######
     if dash=="Home":
-        st.subheader("options for /n1.Add user/n2.distribute petty cash")
-        create_user_form()
-        delete_user_form()
-        petty_home()
-        petty_available_home()
-        bank_account_details_form()
-        bank_account_details_dashboard()
-        with st.expander("Delete Bank Account", expanded=False):
-            delete_bank_account_form()
+        home_option=option_menu(
+            options=['User Management', 'Bank Account Management', 'Petty Cash Management'],
+            menu_title=None,
+            menu_icon='cast',
+            orientation='horizontal')
+        if home_option=='User Management':
+            create_user_form()
+            delete_user_form()
+        elif home_option=="Bank Account Management":
+            bank_account_details_form()
+            bank_account_details_dashboard()
+            with st.expander("Delete Bank Account", expanded=False):
+                delete_bank_account_form()
+        elif home_option=="Petty Cash Management":
+            petty_home()
+            petty_available_home()
+        
+#########Expense Management Functions############        
+        
+        
 
     elif dash=="Expense Management":
         choice = option_menu(
@@ -611,6 +623,7 @@ def admin_dashboard():
         st.session_state.logged_in = False
         st.session_state.username = None
         login()
+    
     
 
 def user_dashboard(username):
