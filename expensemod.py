@@ -276,6 +276,8 @@ def generate_remarks(bill_type, item_data):
 
 def submit_expense(username, expense=None):
     st.subheader("Update Expense" if expense else "Submit New Expense")
+    bank_accounts = [doc.to_dict() for doc in db.collection("bank_details").stream()]
+    petty_cash_users = [doc.to_dict() for doc in db.collection("petty_cash").stream()]
 
     mill_name = st.selectbox("Mill Name", ["Sirajgonj Mill", "Demra Mill"], index=0 if not expense else ["Sirajgonj Mill", "Demra Mill"].index(expense["mill_name"]))
 
@@ -312,19 +314,31 @@ def submit_expense(username, expense=None):
     payment_method = st.selectbox("Payment Method", ["Cash", "Bank Account"], index=0 if not expense else ["Cash", "Bank Account"].index(expense["payment_method"]))
 
     if payment_method == "Cash":
-        cash_from = st.text_input("From whom the cash was paid", value="" if not expense else expense["cash_from"])
+        # Show the list of users from petty_cash data
+        cash_from = st.selectbox(
+            "From whom the cash was paid",
+            [user["username"] for user in petty_cash_users],
+            index=0 if not expense else [user["username"] for user in petty_cash_users].index(expense["cash_from"])
+        )
     else:
-        bank_account = st.selectbox("Bank Account", [f"Bank Account {i}" for i in range(1, 11)], index=0 if not expense else [f"Bank Account {i}" for i in range(1, 11)].index(expense["bank_account"]))
-
+        # Show the list of available bank accounts
+        bank_account = st.selectbox(
+            "Bank Account",
+            [f"{acc['bank_name']}-{acc['branch_name']}" for acc in bank_accounts],
+            index=0 if not expense else [f"{acc['bank_name']}-{acc['branch_name']}" for acc in bank_accounts].index(expense["bank_account"])
+        )
     payment_due_date = st.date_input("Payment Due Date", value=datetime.today() + timedelta(days=1) if not expense else expense["payment_due_date"])
 
     if st.button("Update" if expense else "Submit"):
+        # Set submission time with hours and minutes
         submission_time = datetime.now().strftime('%Y-%m-%d %H:%M')
+
         expense_data = {
             "username": username,
             "mill_name": mill_name,
             "expenditure_name": expenditure_name,
             "expense_date": expense_date.strftime('%Y-%m-%d'),
+            "bill_type": bill_type,
             "total_bill": total_bill,
             "bill_paid": bill_paid,
             "payment_method": payment_method,
@@ -332,7 +346,7 @@ def submit_expense(username, expense=None):
             "bank_account": bank_account if payment_method == "Bank Account" else None,
             "payment_due_date": payment_due_date.strftime('%Y-%m-%d'),
             "submission_time": submission_time,
-            "remarks": remarks,
+            "remarks": remarks if bill_type == "Subtotal Bill" else None,
         }
 
         if total_bill <= 5000:
@@ -352,6 +366,29 @@ def submit_expense(username, expense=None):
                 db.collection("pending_approval").add(expense_data)
                 st.success("Expense submitted for approval.")
 
+        # Calculate available balance or available petty cash
+        if payment_method == "Cash":
+            # Find the user in petty_cash_users
+            user = next((user for user in petty_cash_users if user["username"] == cash_from), None)
+            if user:
+                # Update the user's petty cash
+                new_cash = user["amount"] - bill_paid
+                if new_cash < 0:
+                    st.error("Insufficient petty cash. Please check the amount.")
+                    return
+                db.collection("petty_cash").document(user["username"]).update({"amount": new_cash})
+                st.success(f"Petty cash updated. New balance: {new_cash}")
+        else:
+            # Find the bank account in bank_accounts
+            account = next((acc for acc in bank_accounts if f"{acc['bank_name']}-{acc['branch_name']}" == bank_account), None)
+            if account:
+                # Update the bank account's balance
+                new_balance = account["available_balance"] - bill_paid
+                if new_balance < 0:
+                    st.error("Insufficient bank balance. Please check the amount.")
+                    return
+                db.collection("bank_details").document(account["account_number"]).update({"available_balance": new_balance})
+                st.success(f"Bank balance updated. New balance: {new_balance}")
 
 
 def display_pending_expenses(username):
