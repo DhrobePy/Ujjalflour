@@ -667,7 +667,7 @@ def admin_dashboard():
         if home_option=='User Management':
             with st.expander("Details of all user", expanded=False):
                 user_petty_cash_summary()
-            user_detail_view()
+            #user_detail_view()
             create_user_form()
             delete_user_form()
         elif home_option=="Bank Account Management":
