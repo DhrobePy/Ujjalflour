@@ -464,7 +464,8 @@ def user_detail_view():
     with st.expander("View User Details"):
         # Get the list of usernames from the database
         users_ref = db.collection("users").stream()
-        usernames = [user.to_dict()["username"] for user in users_ref if user.to_dict()["username"] != "admin"]
+        # Exclude "admin" from the list
+        usernames = [user.to_dict()["username"] for user in users_ref if user.to_dict()["username"].lower() != "admin"]
 
         # Create a selectbox for the user to select the username
         selected_user = st.selectbox("Select User", usernames)
