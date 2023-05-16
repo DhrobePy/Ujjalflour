@@ -90,7 +90,7 @@ def show_sent_back_expenses():
 
 ##############3 ends here############
 def bank_account_details_form():
-    with st.expander("Bank Account Details", expanded=False):
+    with st.expander("Add New Bank Account", expanded=False):
         st.subheader("Please enter your bank account details")
 
         bank_name = st.text_input("Bank Name")
