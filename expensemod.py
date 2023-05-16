@@ -14,7 +14,7 @@ from collections import defaultdict
 
 
 cred = credentials.Certificate("exensefinal.json")
-firebase_admin.initialize_app(cred)
+#firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 
