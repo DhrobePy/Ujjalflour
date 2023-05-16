@@ -151,6 +151,41 @@ def display_bank_account_table(bank_account_details):
     df = pd.DataFrame(table_data)
     st.table(df)
 
+def delete_bank_account_form():
+    with st.form("Delete Bank Account"):
+        st.header("Delete a Bank Account")
+        
+        bank_account_details = get_bank_account_details()
+
+        # Create a list of bank names for the selectbox
+        bank_names = [bank_detail["bank_name"] for bank_detail in bank_account_details]
+
+        # Create a list of branch names for the selectbox
+        branch_names = [bank_detail["branch_name"] for bank_detail in bank_account_details]
+
+        # Show a selectbox with the bank names
+        selected_bank = st.selectbox("Select a Bank", bank_names)
+
+        # Show a selectbox with the branch names
+        selected_branch = st.selectbox("Select a Branch", branch_names)
+
+        # If the user clicks the "Delete Account" button, delete the selected account
+        if st.form_submit_button("Delete Account"):
+            delete_bank_account(selected_bank, selected_branch)
+            st.success(f"Bank account at '{selected_bank}' in branch '{selected_branch}' deleted.")
+            
+
+def delete_bank_account(bank_name, branch_name):
+    bank_details_ref = db.collection("bank_details")
+
+    # Fetch the documents for the selected bank and branch
+    selected_bank_docs = bank_details_ref.where("bank_name", "==", bank_name).where("branch_name", "==", branch_name).stream()
+
+    # Delete all documents for the selected bank and branch
+    for doc in selected_bank_docs:
+        bank_details_ref.document(doc.id).delete()
+
+
 #####2######### pending task in admin panel
 
 def pending_notification():
@@ -531,6 +566,7 @@ def admin_dashboard():
         petty_available_home()
         bank_account_details_form()
         bank_account_details_dashboard()
+        delete_bank_account_form()
 
     elif dash=="Expense Management":
         choice = option_menu(
