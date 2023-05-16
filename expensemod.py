@@ -614,7 +614,7 @@ def admin_dashboard():
             with st.expander("Delete Bank Account", expanded=False):
                 delete_bank_account_form()
         elif home_option=="Petty Cash Management":
-            #user_petty_cash_summary()
+            user_petty_cash_summary()
             petty_home()
             petty_available_home()
         
