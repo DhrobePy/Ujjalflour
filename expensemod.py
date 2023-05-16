@@ -566,7 +566,8 @@ def admin_dashboard():
         petty_available_home()
         bank_account_details_form()
         bank_account_details_dashboard()
-        delete_bank_account_form()
+        with st.expander("Delete Bank Account", expanded=False):
+            delete_bank_account_form()
 
     elif dash=="Expense Management":
         choice = option_menu(
