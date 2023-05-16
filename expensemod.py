@@ -518,6 +518,35 @@ def display_petty_cash_table(petty_cash_data):
     df = pd.DataFrame(table_data)
     st.table(df)
 
+def user_petty_cash_summary():
+    users_ref = db.collection("users").stream()
+    petty_cash_ref = db.collection("petty_cash").stream()
+
+    # Retrieve user data
+    user_data = []
+    for user in users_ref:
+        data = user.to_dict()
+        data["id"] = user.id
+        user_data.append(data)
+    df_users = pd.DataFrame(user_data)
+
+    # Retrieve petty cash data
+    user_petty_cash = defaultdict(lambda: {'amount': 0})
+    for entry in petty_cash_ref:
+        data = entry.to_dict()
+        username = data["username"]
+        amount = data["amount"]
+        user_petty_cash[username]['amount'] += amount
+    df_petty_cash = pd.DataFrame(user_petty_cash).T.reset_index().rename(columns={'index': 'username', 'amount': 'petty_cash_available'})
+
+    # Merge the dataframes
+    df = df_users.merge(df_petty_cash, on='username', how='left')
+
+    # Replace NaN values with 0
+    df['petty_cash_available'] = df['petty_cash_available'].fillna(0)
+
+    # Display the dataframe
+    st.table(df)
 
 
 
@@ -585,6 +614,7 @@ def admin_dashboard():
             with st.expander("Delete Bank Account", expanded=False):
                 delete_bank_account_form()
         elif home_option=="Petty Cash Management":
+            user_petty_cash_summary()
             petty_home()
             petty_available_home()
         
