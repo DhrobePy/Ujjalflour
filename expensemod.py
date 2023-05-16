@@ -365,30 +365,7 @@ def submit_expense(username, expense=None):
             else:  # if we are creating a new expense
                 db.collection("pending_approval").add(expense_data)
                 st.success("Expense submitted for approval.")
-
-        # Calculate available balance or available petty cash
-        if payment_method == "Cash":
-            # Find the user in petty_cash_users
-            user = next((user for user in petty_cash_users if user["username"] == cash_from), None)
-            if user:
-                # Update the user's petty cash
-                new_cash = user["amount"] - bill_paid
-                if new_cash < 0:
-                    st.error("Insufficient petty cash. Please check the amount.")
-                    return
-                db.collection("petty_cash").document(user["username"]).update({"amount": new_cash})
-                st.success(f"Petty cash updated. New balance: {new_cash}")
-        else:
-            # Find the bank account in bank_accounts
-            account = next((acc for acc in bank_accounts if f"{acc['bank_name']}-{acc['branch_name']}" == bank_account), None)
-            if account:
-                # Update the bank account's balance
-                new_balance = account["available_balance"] - bill_paid
-                if new_balance < 0:
-                    st.error("Insufficient bank balance. Please check the amount.")
-                    return
-                db.collection("bank_details").document(account["account_number"]).update({"available_balance": new_balance})
-                st.success(f"Bank balance updated. New balance: {new_balance}")
+        
 
 
 def display_pending_expenses(username):
