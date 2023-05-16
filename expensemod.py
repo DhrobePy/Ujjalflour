@@ -306,6 +306,7 @@ def submit_expense(username, expense=None):
         remarks = generate_remarks(bill_type, item_data)
     else:
         total_bill = st.number_input("Total Bill Amount", min_value=0.0, step=0.01, value=0.0 if not expense else expense["total_bill"])
+        remarks = ""
 
     bill_paid = st.number_input("Bill Paid", min_value=0.0, step=0.01, value=0.0 if not expense else expense["bill_paid"])
     payment_method = st.selectbox("Payment Method", ["Cash", "Bank Account"], index=0 if not expense else ["Cash", "Bank Account"].index(expense["payment_method"]))
@@ -332,6 +333,7 @@ def submit_expense(username, expense=None):
             "bank_account": bank_account if payment_method == "Bank Account" else None,
             "payment_due_date": payment_due_date.strftime('%Y-%m-%d'),
             "submission_time": submission_time,
+            "remarks": remarks,
         }
 
         if total_bill <= 5000:
@@ -350,6 +352,8 @@ def submit_expense(username, expense=None):
             else:  # if we are creating a new expense
                 db.collection("pending_approval").add(expense_data)
                 st.success("Expense submitted for approval.")
+
+
 
 def display_pending_expenses(username):
     st.subheader("Pending Expenses")
