@@ -460,6 +460,55 @@ def get_all_usernames():
     usernames.remove('Admin')  # Removing 'admin' from the list
     return usernames
 
+def user_detail_view():
+    with st.expander("View User Details"):
+        # Get the list of usernames from the database
+        users_ref = db.collection("users").stream()
+        usernames = [user.to_dict()["username"] for user in users_ref if user.to_dict()["username"] != "admin"]
+
+        # Create a selectbox for the user to select the username
+        selected_user = st.selectbox("Select User", usernames)
+
+        # Retrieve and display the selected user's details
+        user_details = get_user_details(selected_user)
+        display_user_details(user_details)
+
+
+def get_user_details(username):
+    docs = db.collection('users').where('username', '==', username).stream()
+    docs = list(docs)  # convert to list to check its length
+
+    if len(docs) == 0:
+        st.error("No user data found.")
+        return None
+
+    # If we have documents, we continue with the first one
+    doc = docs[0]
+    user_data = doc.to_dict()
+
+    return user_data
+
+
+def display_user_details(user_data):
+    if user_data is None:
+        return
+
+    # Exclude 'password' and 'id' fields
+    del user_data['password']
+    del user_data['id']
+
+    # Create a dataframe for display
+    df = pd.DataFrame(user_data, index=[0])
+
+    # Reorder the columns
+    df = df[["username", "full_name", "job_desk_task", "phone_number", "address", "emergency_contact", "reference", "Start Date", "Present Salary"]]
+
+    # Transpose the dataframe
+    df_transposed = df.T
+
+    # Display the transposed dataframe
+    st.table(df_transposed)
+
 
 def petty_home():
     with st.expander("Distribute Petty Cash", expanded=False):
@@ -618,6 +667,7 @@ def admin_dashboard():
         if home_option=='User Management':
             with st.expander("Details of all user", expanded=False):
                 user_petty_cash_summary()
+            user_detail_view()
             create_user_form()
             delete_user_form()
         elif home_option=="Bank Account Management":
