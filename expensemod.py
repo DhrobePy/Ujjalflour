@@ -548,6 +548,9 @@ def user_petty_cash_summary():
     # Replace NaN values with 0
     df['petty_cash_available'] = df['petty_cash_available'].fillna(0)
 
+    # Reorder the columns
+    df = df[["username", "full_name", "job_desk_task", "phone_number", "address", "emergency_contact", "reference", "Start Date", "Present Salary", "petty_cash_available"]]
+
     # Transpose the dataframe
     df_transposed = df.T
 
@@ -613,6 +616,8 @@ def admin_dashboard():
             menu_icon='cast',
             orientation='horizontal')
         if home_option=='User Management':
+            with st.expander("Details of all user", expanded=False):
+                user_petty_cash_summary()
             create_user_form()
             delete_user_form()
         elif home_option=="Bank Account Management":
@@ -621,7 +626,6 @@ def admin_dashboard():
             with st.expander("Delete Bank Account", expanded=False):
                 delete_bank_account_form()
         elif home_option=="Petty Cash Management":
-            user_petty_cash_summary()
             petty_home()
             petty_available_home()
         
