@@ -634,6 +634,9 @@ def user_petty_cash_summary():
     st.table(df_transposed)
 
 def update_petty_cash_after_approval():
+    
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
     # Get all approved expenses
     approved_expenses = [doc.to_dict() for doc in db.collection("approved_expense").stream()]
 
