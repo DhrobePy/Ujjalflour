@@ -319,8 +319,7 @@ def submit_expense(username, expense=None):
     payment_due_date = st.date_input("Payment Due Date", value=datetime.today() + timedelta(days=1) if not expense else expense["payment_due_date"])
 
     if st.button("Update" if expense else "Submit"):
-        submission_time = datetime.now().strftime('%Y-%m-%d')
-
+        submission_time = datetime.now().strftime('%Y-%m-%d %H:%M')
         expense_data = {
             "username": username,
             "mill_name": mill_name,
