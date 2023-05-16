@@ -375,7 +375,7 @@ def display_pending_expenses(username):
     docs = db.collection('pending_approval').where('username', '==', username).stream()
 
     # Parse the returned documents into a list of dictionaries
-    pending_expenses = [doc.to_dict() for doc in docs]
+    pending_expenses = [{**doc.to_dict(), "id": doc.id} for doc in docs]
 
     # If there are any pending expenses, display them in a table
     if pending_expenses:
@@ -400,7 +400,6 @@ def display_pending_expenses(username):
                 submit_expense(username, expense)
     else:
         st.write("You have no pending expenses.")
-
 
 ###############
 
