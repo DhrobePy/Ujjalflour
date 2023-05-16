@@ -152,7 +152,7 @@ def display_bank_account_table(bank_account_details):
     st.table(df)
 
 def delete_bank_account_form():
-    with st.form("Delete Bank Account"):
+    with st.expander("Delete Bank Account",expanded=False):
         st.header("Delete a Bank Account")
         
         bank_account_details = get_bank_account_details()
