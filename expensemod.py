@@ -216,7 +216,7 @@ def show_pending_expenses():
     for expense in pending_expenses:
         data = expense.to_dict()
         expense_id = expense.id
-        st.markdown(f"### Expense submitted by {data['username']} for {data['expenditure_name']} at {datetime.strptime(data['submission_time'], '%Y-%m-%d %H:%M').strftime('%Y-%m-%d %H:%M')}")
+        st.markdown(f"### Expense submitted by {data['username']} for {data['expenditure_name']} on {datetime.strptime(data['submission_time'], '%Y-%m-%d').strftime('%Y-%m-%d')}")
 
         table_data = {
             "Expense ID": [expense_id],
