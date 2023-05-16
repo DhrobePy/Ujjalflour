@@ -633,26 +633,6 @@ def user_petty_cash_summary():
     # Display the transposed dataframe
     st.table(df_transposed)
 
-def update_petty_cash_after_approval():
-    
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-    # Get all approved expenses
-    approved_expenses = [doc.to_dict() for doc in db.collection("approved_expense").stream()]
-
-    for expense in approved_expenses:
-        # Check if the payment method was cash
-        if expense["cash_from"] is not None:
-            # Get the user from the petty cash collection
-            user_doc = db.collection("petty_cash").document(expense["cash_from"]).get()
-            if user_doc.exists:
-                user = user_doc.to_dict()
-                # Update the user's petty cash amount
-                new_amount = user["amount"] - expense["bill_paid"]
-                if new_amount >= 0:
-                    db.collection("petty_cash").document(expense["cash_from"]).update({"amount": new_amount})
-                else:
-                    st.error(f"Insufficient funds in petty cash for user {expense['cash_from']}. Please check the expenses.")
 
 
 
@@ -727,8 +707,7 @@ def admin_dashboard():
         elif home_option=="Petty Cash Management":
             petty_home()
             petty_available_home()
-            if st.button("Update petty cash after approval of cash Expense"):
-                update_petty_cash_after_approval()
+            
         
 #########Expense Management Functions############        
         
