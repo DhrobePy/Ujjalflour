@@ -86,6 +86,15 @@ def show_sent_back_expenses():
         st.error(f"Expense {expense_id} was sent back.")
         st.write("---")
 
+def admin_add_category():
+    new_category = st.text_input("New Category Name")
+    if st.button("Add Category"):
+        if new_category:
+            # Add new category to Firestore
+            db.collection("categories").add({"name": new_category})
+            st.success(f"Category {new_category} added successfully.")
+        else:
+            st.error("Please enter a category name.")
 
 
 ##############3 ends here############
@@ -285,9 +294,8 @@ def submit_expense(username, expense=None):
     if expenditure_name == "Expenditure Name":
         expenditure_name = st.text_input("Title of the Expense", value="" if not expense else expense["expenditure_name"])
     else:
-        categories = ["Category 1", "Category 2", "Category 3"]
+        categories = [doc.to_dict()['name'] for doc in db.collection("categories").stream()]
         expenditure_name = st.selectbox("Select Category", categories, index=0 if not expense else categories.index(expense["expenditure_name"]))
-
     expense_date = st.date_input("Expense Date", value=datetime.today() if not expense else expense["expense_date"])
 
     bill_type = st.selectbox("Bill Type", ["Total Bill", "Subtotal Bill"], index=0 if not expense else ["Total Bill", "Subtotal Bill"].index(expense["bill_type"]))
@@ -722,7 +730,7 @@ def admin_dashboard():
 
         if choice == "Pending Expenses for Approval":
             show_pending_expenses()
-            
+            admin_add_category()
         elif choice=="Due Dates":
             st.write('Upcoming Due dates in chronological order')
             
