@@ -20,36 +20,20 @@ db = firestore.client()
 
 
 ######order management######
-def add_order_form():
-    st.subheader("Add Order for a Customer")
+def add_order(username, customer=None):
+    st.subheader("Add Order" if not customer else "Update Order")
 
-    # Fetch all customer data
-    docs = db.collection('customers').stream()
-    customers = [doc.to_dict() for doc in docs]
-
-    # If no customers, display message
-    if not customers:
-        st.write("No customers found.")
-        return
-
-    # Select customer
-    selected_customer_id = st.selectbox(
-        "Select customer",
-        options=[customer['customer_id'] for customer in customers]
-    )
-
-    # Get selected customer details
-    selected_customer = next(customer for customer in customers if customer['customer_id'] == selected_customer_id)
-
-    # Define items
     item_types = ["Rutti", "Jora Hatti", "Ek Hatti", "Kobutor", "Sunflower", "Elders Atta", "Mota Vushi", "Chikon Vushi"]
 
-    # Initialize total order price
-    total_order_price = 0.0
-
-    # Handle multi-row inputs
     num_rows = st.session_state.get("num_rows", 1)
 
+    # Initialize the session state keys and values
+    for idx in range(num_rows):
+        st.session_state[f"item_type{idx}"] = st.session_state.get(f"item_type{idx}", item_types[0])
+        st.session_state[f"quantity{idx}"] = st.session_state.get(f"quantity{idx}", 0.0)
+        st.session_state[f"quotation_price{idx}"] = st.session_state.get(f"quotation_price{idx}", 0.0)
+
+    # Now you can define the widgets
     for idx in range(num_rows):
         with st.beta_expander(f"Order Item #{idx + 1}", expanded=True):
             st.session_state[f"item_type{idx}"], st.session_state[f"quantity{idx}"], st.session_state[f"quotation_price{idx}"] = st.columns(3)[0].selectbox("Item Type", item_types, key=f"item_type{idx}"), st.columns(3)[1].number_input("Quantity", min_value=0.0, step=0.01, key=f"quantity{idx}"), st.columns(3)[2].number_input("Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
@@ -57,7 +41,6 @@ def add_order_form():
     if st.button("Add another item"):
         num_rows += 1
         st.session_state.num_rows = num_rows
-    
 
     st.markdown(f"### Total Order Price: {total_order_price}")
 
