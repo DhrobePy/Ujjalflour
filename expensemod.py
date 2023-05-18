@@ -42,7 +42,7 @@ def add_order_form():
     selected_customer = next(customer for customer in customers if customer['customer_id'] == selected_customer_id)
 
     # Define items
-    items = ["Rutti", "Jora Hatti", "Ek Hatti", "Kobutor", "Sunflower", "Elders Atta", "Mota Vushi", "Chikon Vushi"]
+    item_types = ["Rutti", "Jora Hatti", "Ek Hatti", "Kobutor", "Sunflower", "Elders Atta", "Mota Vushi", "Chikon Vushi"]
 
     # Initialize total order price
     total_order_price = 0.0
