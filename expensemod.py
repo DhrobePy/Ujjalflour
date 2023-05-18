@@ -23,6 +23,23 @@ db = firestore.client()
 
 
 ########3 Expense Report functions#########
+def display_approved_expenses():
+    st.subheader("Approved Expenses")
+
+    # Query Firestore for approved expenses
+    docs = db.collection('approved_expense').stream()
+
+    # Parse the documents into a list of dictionaries
+    approved_expenses = [doc.to_dict() for doc in docs]
+
+    # Convert the list of dictionaries to a DataFrame
+    df = pd.DataFrame(approved_expenses)
+
+    # If there are any approved expenses, display them in a table
+    if not df.empty:
+        st.table(df)
+    else:
+        st.write("No approved expenses.")
 
 
 def show_approved_expenses():
@@ -736,6 +753,7 @@ def admin_dashboard():
             
         elif choice=="Expense Report":
             st.write("Expense Reports from all users")
+            display_approved_expenses():
 
     elif dash=="Order Management":
         st.subheader("orders will be managed with brief summary")      
