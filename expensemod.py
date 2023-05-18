@@ -143,7 +143,7 @@ def add_order_form():
             for idx in range(num_rows)
         ]
     }
-
+    
     # Exclude "order_items" from order_data
     order_data_excluding_items = {k: v for k, v in order_data.items() if k != "order_items"}
 
@@ -159,7 +159,7 @@ def add_order_form():
         st.subheader(f"Order Item #{i+1}")
         df_item = pd.DataFrame(item, index=[0])
         st.table(df_item.transpose())
-        
+
     # Add order to Firestore
     db.collection("orders").add(order_data)
     st.success("Order submitted successfully!")
