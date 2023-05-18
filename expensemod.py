@@ -979,8 +979,8 @@ def admin_dashboard():
         st.subheader("list of customers with their dues and past histories will be available here")
         with st.expander("Add a customer"):
             add_customer()
-        with st.expander("update existing customer"):
-            update_customer_data()
+        #with st.expander("update existing customer"):
+            #update_customer_data()
     elif dash=="Distribution House management":
         st.write("Detailed Management of Distribution House")
      
