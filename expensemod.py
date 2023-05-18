@@ -1063,6 +1063,8 @@ def user_dashboard(username):
                 update_customer_data()
             with st.expander("Add new order"):
                 add_order_form()
+            with st.expander("orders subkitted for approval"):
+                admin_view_orders()
         elif choices=="Product Management":
             st.title("Products and stocks will be maintained from here")
     if st.button("Logout"):
