@@ -34,13 +34,20 @@ def add_order(username, customer=None):
         st.session_state[f"quotation_price{idx}"] = st.session_state.get(f"quotation_price{idx}", 0.0)
 
     # Now you can define the widgets
+    order_data = []
     for idx in range(num_rows):
         with st.beta_expander(f"Order Item #{idx + 1}", expanded=True):
-            st.session_state[f"item_type{idx}"], st.session_state[f"quantity{idx}"], st.session_state[f"quotation_price{idx}"] = st.columns(3)[0].selectbox("Item Type", item_types, key=f"item_type{idx}"), st.columns(3)[1].number_input("Quantity", min_value=0.0, step=0.01, key=f"quantity{idx}"), st.columns(3)[2].number_input("Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
+            item_type, quantity, quotation_price = st.columns(3)[0].selectbox("Item Type", item_types, key=f"item_type{idx}"), st.columns(3)[1].number_input("Quantity", min_value=0.0, step=0.01, key=f"quantity{idx}"), st.columns(3)[2].number_input("Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
+            order_data.append((item_type, quantity, quotation_price))
 
     if st.button("Add another item"):
         num_rows += 1
         st.session_state.num_rows = num_rows
+
+    # Process the order data to get the total order price
+    total_order_price = sum(quantity * price for _, quantity, price in order_data)
+
+    # The rest of your code here...
 
     st.markdown(f"### Total Order Price: {total_order_price}")
 
