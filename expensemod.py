@@ -995,8 +995,10 @@ def admin_dashboard():
 
     elif dash=="Order Management":
         st.subheader("orders will be managed with brief summary")
-        add_order_form()
-        admin_view_orders()
+        with st.expander("Add new order"):
+            add_order_form()
+        with st.expander("show pending submitted order"):
+            admin_view_orders()
         
     elif dash=="Product Management":
         st.subheader("Product will be managed with brief summary")
