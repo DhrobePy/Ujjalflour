@@ -27,7 +27,8 @@ def admin_view_orders():
     docs = db.collection('orders').stream()
 
     # Parse the returned documents into a list of dictionaries
-    pending_orders = [doc.to_dict() for doc in docs]
+    # Parse the returned documents into a list of dictionaries, including the document ID
+    pending_orders = [{'id': doc.id, **doc.to_dict()} for doc in docs]
 
     # If there are any pending orders, display them in a table
     if pending_orders:
