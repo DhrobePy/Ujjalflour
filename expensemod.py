@@ -49,16 +49,15 @@ def add_order_form():
 
     # Handle multi-row inputs
     num_rows = st.session_state.get("num_rows", 1)
+
     for idx in range(num_rows):
-        st.markdown(f"### Order Item {idx + 1}")
-        item_type = st.selectbox(f"Item Type", items, key=f"item_type{idx}")
-        quantity = st.number_input(f"Quantity", min_value=1, step=1, key=f"quantity{idx}")
-        quotation_price = st.number_input(f"Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
-        total_order_price += quantity * quotation_price
+        with st.beta_expander(f"Order Item #{idx + 1}", expanded=True):
+            st.session_state[f"item_type{idx}"], st.session_state[f"quantity{idx}"], st.session_state[f"quotation_price{idx}"] = st.columns(3)[0].selectbox("Item Type", item_types, key=f"item_type{idx}"), st.columns(3)[1].number_input("Quantity", min_value=0.0, step=0.01, key=f"quantity{idx}"), st.columns(3)[2].number_input("Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
 
     if st.button("Add another item"):
         num_rows += 1
         st.session_state.num_rows = num_rows
+    
 
     st.markdown(f"### Total Order Price: {total_order_price}")
 
