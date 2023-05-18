@@ -998,7 +998,8 @@ def user_dashboard(username):
                 add_customer()
             with st.expander("update existing customer"):
                 update_customer_data()
-            with st.expander("Add new order")
+            with st.expander("Add new order"):
+                add_order_form()
         elif choices=="Product Management":
             st.title("Products and stocks will be maintained from here")
     if st.button("Logout"):
