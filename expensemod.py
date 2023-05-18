@@ -20,34 +20,45 @@ db = firestore.client()
 
 
 ######order management######
-def add_order(username, customer=None):
-    st.subheader("Add Order" if not customer else "Update Order")
+def add_order_form():
+    st.subheader("Add Order for a Customer")
 
-    item_types = ["Rutti", "Jora Hatti", "Ek Hatti", "Kobutor", "Sunflower", "Elders Atta", "Mota Vushi", "Chikon Vushi"]
+    # Fetch all customer data
+    docs = db.collection('customers').stream()
+    customers = [doc.to_dict() for doc in docs]
 
+    # If no customers, display message
+    if not customers:
+        st.write("No customers found.")
+        return
+
+    # Select customer
+    selected_customer_id = st.selectbox(
+        "Select customer",
+        options=[customer['customer_id'] for customer in customers]
+    )
+
+    # Get selected customer details
+    selected_customer = next(customer for customer in customers if customer['customer_id'] == selected_customer_id)
+
+    # Define items
+    items = ["Rutti", "Jora Hatti", "Ek Hatti", "Kobutor", "Sunflower", "Elders Atta", "Mota Vushi", "Chikon Vushi"]
+
+    # Initialize total order price
+    total_order_price = 0.0
+
+    # Handle multi-row inputs
     num_rows = st.session_state.get("num_rows", 1)
-
-    # Initialize the session state keys and values
     for idx in range(num_rows):
-        st.session_state[f"item_type{idx}"] = st.session_state.get(f"item_type{idx}", item_types[0])
-        st.session_state[f"quantity{idx}"] = st.session_state.get(f"quantity{idx}", 0.0)
-        st.session_state[f"quotation_price{idx}"] = st.session_state.get(f"quotation_price{idx}", 0.0)
-
-    # Now you can define the widgets
-    order_data = []
-    for idx in range(num_rows):
-        with st.beta_expander(f"Order Item #{idx + 1}", expanded=True):
-            item_type, quantity, quotation_price = st.columns(3)[0].selectbox("Item Type", item_types, key=f"item_type{idx}"), st.columns(3)[1].number_input("Quantity", min_value=0.0, step=0.01, key=f"quantity{idx}"), st.columns(3)[2].number_input("Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
-            order_data.append((item_type, quantity, quotation_price))
+        st.markdown(f"### Order Item {idx + 1}")
+        item_type = st.selectbox(f"Item Type", items, key=f"item_type{idx}")
+        quantity = st.number_input(f"Quantity", min_value=1, step=1, key=f"quantity{idx}")
+        quotation_price = st.number_input(f"Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
+        total_order_price += quantity * quotation_price
 
     if st.button("Add another item"):
         num_rows += 1
         st.session_state.num_rows = num_rows
-
-    # Process the order data to get the total order price
-    total_order_price = sum(quantity * price for _, quantity, price in order_data)
-
-    # The rest of your code here...
 
     st.markdown(f"### Total Order Price: {total_order_price}")
 
@@ -100,6 +111,8 @@ def add_order(username, customer=None):
         # Add order to Firestore
         db.collection("orders").add(order_data)
         st.success("Order submitted successfully!")
+
+
 
             
 ##### customer management#####
@@ -922,7 +935,7 @@ def admin_dashboard():
 
     elif dash=="Order Management":
         st.subheader("orders will be managed with brief summary")
-        add_order(username, customer=None)
+        add_order_form()
         
     elif dash=="Product Management":
         st.subheader("Product will be managed with brief summary")
@@ -985,7 +998,7 @@ def user_dashboard(username):
                 add_customer()
             with st.expander("update existing customer"):
                 update_customer_data()
-            add_order(username, customer=None)
+            with st.expander("Add new order")
         elif choices=="Product Management":
             st.title("Products and stocks will be maintained from here")
     if st.button("Logout"):
