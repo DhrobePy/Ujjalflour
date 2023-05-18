@@ -17,6 +17,85 @@ cred = credentials.Certificate("exensefinal.json")
 #firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+
+
+######order management######
+def add_order_form():
+    st.subheader("Add Order for a Customer")
+
+    # Fetch all customer data
+    docs = db.collection('customers').stream()
+    customers = [doc.to_dict() for doc in docs]
+
+    # If no customers, display message
+    if not customers:
+        st.write("No customers found.")
+        return
+
+    # Select customer
+    selected_customer_id = st.selectbox(
+        "Select customer",
+        options=[customer['customer_id'] for customer in customers]
+    )
+
+    # Define items
+    items = ["Rutti", "Jora Hatti", "Ek Hatti", "Kobutor", "Sunflower", "Elders Atta", "Mota Vushi", "Chikon Vushi"]
+
+    # Initialize total order price
+    total_order_price = 0.0
+
+    # Handle multi-row inputs
+    num_rows = st.session_state.get("num_rows", 1)
+    for idx in range(num_rows):
+        st.markdown(f"### Order Item {idx + 1}")
+        item_type = st.selectbox(f"Item Type", items, key=f"item_type{idx}")
+        quantity = st.number_input(f"Quantity", min_value=1, step=1, key=f"quantity{idx}")
+        quotation_price = st.number_input(f"Quotation Price", min_value=0.0, step=0.01, key=f"quotation_price{idx}")
+        total_order_price += quantity * quotation_price
+
+    if st.button("Add another item"):
+        num_rows += 1
+        st.session_state.num_rows = num_rows
+
+    st.markdown(f"### Total Order Price: {total_order_price}")
+
+    delivery_date = st.date_input("Delivery Date", value=datetime.today() + timedelta(days=1))
+    delivery_point = st.text_input("Delivery Point")
+
+    advance_payment = st.number_input("Advance Payment", min_value=0.0, step=0.01)
+    due_amount = total_order_price - advance_payment
+
+    payment_method = st.selectbox("Payment Method", ["Cash", "Bank Account"])
+
+    if payment_method == "Cash":
+        cash_paid_to = st.text_input("Cash Paid To")
+    else:
+        bank_accounts = [doc.to_dict() for doc in db.collection("bank_details").stream()]
+        bank_account = st.selectbox(
+            "Bank Account",
+            [f"{acc['bank_name']}-{acc['branch_name']}" for acc in bank_accounts]
+        )
+
+    payment_due_date = st.date_input("Payment Due Date", value=datetime.today() + timedelta(days=1))
+
+    if st.button("Submit Order"):
+        order_data = {
+            "customer_id": selected_customer_id,
+            "delivery_date": delivery_date.strftime('%Y-%m-%d'),
+            "delivery_point": delivery_point,
+            "advance_payment": advance_payment,
+            "due_amount": due_amount,
+            "payment_method": payment_method,
+            "cash_paid_to": cash_paid_to if payment_method == "Cash" else None,
+            "bank_account": bank_account if payment_method == "Bank Account" else None,
+            "payment_due_date": payment_due_date.strftime('%Y-%m-%d'),
+            "total_order_price": total_order_price,
+        }
+        # Add order to Firestore
+        db.collection("orders").add(order_data)
+        st.success("Order submitted successfully!")
+
+
 ##### customer management#####
 
 def add_customer():
@@ -836,7 +915,9 @@ def admin_dashboard():
                 display_approved_expenses()
 
     elif dash=="Order Management":
-        st.subheader("orders will be managed with brief summary")      
+        st.subheader("orders will be managed with brief summary") 
+        with st.expander("Add new order"):
+            add_order_form()
         
     elif dash=="Product Management":
         st.subheader("Product will be managed with brief summary")
@@ -897,6 +978,8 @@ def user_dashboard(username):
             st.title("Here, order will be managed")
             with st.expander("Add a new customer"):
                 add_customer()
+            with st.expander("Add a new Order"):
+                add_order_form()
             with st.expander("update existing customer"):
                 update_customer_data()
         elif choices=="Product Management":
