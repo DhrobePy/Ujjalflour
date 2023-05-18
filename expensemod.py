@@ -123,30 +123,25 @@ def add_order_form():
     payment_due_date = st.date_input("Payment Due Date", value=datetime.today() + timedelta(days=1))
 
     if st.button("Submit Order"):
-        order_data = {
-            "customer_id": selected_customer_id,
-            "delivery_date": delivery_date.strftime('%Y-%m-%d'),
-            "delivery_point": delivery_point,
-            "advance_payment": advance_payment,
-            "due_amount": due_amount,
-            "payment_method": payment_method,
-            "cash_paid_to": cash_paid_to if payment_method == "Cash" else None,
-            "bank_account": bank_account if payment_method =="Bank Account" else None,
-            "payment_due_date": payment_due_date.strftime('%Y-%m-%d'),
-            "total_order_price": total_order_price,
-            "order_items": [
-                {
-                    "item_type": st.session_state[f"item_type{idx}"],
-                    "quantity": st.session_state[f"quantity{idx}"],
-                    "quotation_price": st.session_state[f"quotation_price{idx}"]
-                } 
-                for idx in range(num_rows)
-            ]
-        }
+        # Exclude "order_items" from order_data
+        order_data_excluding_items = {k: v for k, v in order_data.items() if k != "order_items"}
+
+        # Create a DataFrame from order_data_excluding_items
+        df_order = pd.DataFrame(order_data_excluding_items, index=[0])
+        
+        # Display the DataFrame
+        st.table(df_order.transpose())
+        
+        # Handle "order_items" separately
+        order_items = order_data["order_items"]
+        for i, item in enumerate(order_items):
+            st.subheader(f"Order Item #{i+1}")
+            df_item = pd.DataFrame(item, index=[0])
+            st.table(df_item.transpose())
+        
         # Add order to Firestore
         db.collection("orders").add(order_data)
         st.success("Order submitted successfully!")
-
 
 
             
