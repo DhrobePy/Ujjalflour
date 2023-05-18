@@ -38,6 +38,9 @@ def add_order_form():
         options=[customer['customer_id'] for customer in customers]
     )
 
+    # Get selected customer details
+    selected_customer = next(customer for customer in customers if customer['customer_id'] == selected_customer_id)
+
     # Define items
     items = ["Rutti", "Jora Hatti", "Ek Hatti", "Kobutor", "Sunflower", "Elders Atta", "Mota Vushi", "Chikon Vushi"]
 
@@ -60,7 +63,13 @@ def add_order_form():
     st.markdown(f"### Total Order Price: {total_order_price}")
 
     delivery_date = st.date_input("Delivery Date", value=datetime.today() + timedelta(days=1))
-    delivery_point = st.text_input("Delivery Point")
+
+    delivery_point_option = st.selectbox("Delivery Point", ["Customer Address", "Different Point"])
+    if delivery_point_option == "Customer Address":
+        delivery_point = selected_customer['address']
+        st.write(f"Delivery Point: {delivery_point}")
+    else:
+        delivery_point = st.text_input("Enter Different Delivery Point")
 
     advance_payment = st.number_input("Advance Payment", min_value=0.0, step=0.01)
     due_amount = total_order_price - advance_payment
@@ -87,15 +96,23 @@ def add_order_form():
             "due_amount": due_amount,
             "payment_method": payment_method,
             "cash_paid_to": cash_paid_to if payment_method == "Cash" else None,
-            "bank_account": bank_account if payment_method == "Bank Account" else None,
+            "bank_account": bank_account if payment_method =="Bank Account" else None,
             "payment_due_date": payment_due_date.strftime('%Y-%m-%d'),
             "total_order_price": total_order_price,
+            "order_items": [
+                {
+                    "item_type": st.session_state[f"item_type{idx}"],
+                    "quantity": st.session_state[f"quantity{idx}"],
+                    "quotation_price": st.session_state[f"quotation_price{idx}"]
+                } 
+                for idx in range(num_rows)
+            ]
         }
         # Add order to Firestore
         db.collection("orders").add(order_data)
         st.success("Order submitted successfully!")
 
-
+            
 ##### customer management#####
 
 def add_customer():
