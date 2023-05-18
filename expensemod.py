@@ -23,35 +23,44 @@ db = firestore.client()
 def admin_view_orders():
     st.subheader("Pending Orders")
 
-    # Fetch the pending orders
-    orders = [doc.to_dict() for doc in db.collection('orders').stream()]
+    # Query the Firestore collection for pending orders
+    docs = db.collection('orders').stream()
 
-    if not orders:
-        st.write("No pending orders.")
-        return
+    # Parse the returned documents into a list of dictionaries
+    pending_orders = [doc.to_dict() for doc in docs]
 
-    for order in orders:
-        # Generate an order DataFrame for display
-        order_df = pd.DataFrame(order, index=[0])
-        st.table(order_df.transpose())
+    # If there are any pending orders, display them in a table
+    if pending_orders:
+        for i, order in enumerate(pending_orders, 1):
+            st.subheader(f"Pending Order #{i}")
 
-        # Unique identifier for each order
-        order_id = order['id']
+            order_data_excluding_items = {k: v for k, v in order.items() if k != "order_items"}
+            df_order = pd.DataFrame(order_data_excluding_items, index=[0])
+            st.table(df_order.transpose())
+            
+            # Handle "order_items" separately
+            order_items = order["order_items"]
+            for j, item in enumerate(order_items):
+                st.subheader(f"Order Item #{j+1}")
+                df_item = pd.DataFrame(item, index=[0])
+                st.table(df_item.transpose())
 
-        if st.button(f"Approve Order {order_id}"):
-            # Move the order to 'approved_orders'
-            db.collection('approved_orders').document(order_id).set(order)
+            # Add buttons for approving and rejecting the order
+            approve_button = st.button(f"Approve Order #{i}")
+            reject_button = st.button(f"Reject Order #{i}")
 
-            # Delete the order from 'orders'
-            db.collection('orders').document(order_id).delete()
+            # If the approve button is clicked, move the order to the 'approved_orders' collection and remove from 'orders'
+            if approve_button:
+                db.collection('approved_orders').add(order)
+                db.collection('orders').document(order['id']).delete()
+                st.success(f"Approved Order #{i}")
 
-            st.success(f"Order {order_id} has been approved and moved to approved orders.")
-
-        if st.button(f"Reject Order {order_id}"):
-            # Delete the order from 'orders'
-            db.collection('orders').document(order_id).delete()
-
-            st.error(f"Order {order_id} has been rejected and removed from pending orders.")
+            # If the reject button is clicked, delete the order from the 'orders' collection
+            if reject_button:
+                db.collection('orders').document(order['id']).delete()
+                st.success(f"Rejected Order #{i}")
+    else:
+        st.write("There are no pending orders.")
 
 
 
