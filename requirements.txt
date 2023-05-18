@@ -6,4 +6,3 @@ streamlit-lottie
 streamlit-option-menu
 streamlit-aggrid
 openpyxl
-InvoiceGenerator
