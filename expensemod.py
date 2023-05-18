@@ -20,6 +20,31 @@ db = firestore.client()
 
 
 ######order management######
+def display_approved_orders():
+    st.subheader("Approved Orders")
+
+    # Query the Firestore collection for approved orders
+    docs = db.collection('approved_orders').stream()
+
+    # Parse the returned documents into a list of dictionaries
+    approved_orders = [doc.to_dict() for doc in docs]
+
+    # If there are any approved orders, display them in a table
+    if approved_orders:
+        # Creating a Pandas DataFrame to better display the list of dictionaries
+        df = pd.DataFrame(approved_orders)
+        
+        # If the order_items column is in the dataframe, we want to convert it to a readable format
+        if 'order_items' in df.columns:
+            df['order_items'] = df['order_items'].apply(lambda items: ', '.join(f"{item['item_type']} (qty: {item['quantity']}, price: {item['quotation_price']})" for item in items))
+        
+        # Display the dataframe as a table
+        st.table(df)
+    else:
+        st.write("No approved orders.")
+
+
+
 def admin_view_orders():
     st.subheader("Pending Orders")
 
@@ -1000,6 +1025,8 @@ def admin_dashboard():
             add_order_form()
         with st.expander("show pending submitted order"):
             admin_view_orders()
+        with st.expander("Show approved orders"):
+            display_approved_orders()
         
     elif dash=="Product Management":
         st.subheader("Product will be managed with brief summary")
