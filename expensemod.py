@@ -19,7 +19,7 @@ db = firestore.client()
 
 ##### customer management#####
 
-def add_customer(username):
+def add_customer():
     st.subheader("Add a New Customer")
 
     customer_name = st.text_input("Customer Name")
@@ -33,7 +33,6 @@ def add_customer(username):
         if customer_name and phone_number and address and location and rm_name:
             customer_id = customer_name.split(" ")[1] + phone_number[-4:]
             customer_data = {
-                "username": username,
                 "customer_name": customer_name,
                 "phone_number": phone_number,
                 "address": address,
@@ -844,7 +843,7 @@ def admin_dashboard():
     elif dash=="Customer Management":
         st.subheader("list of customers with their dues and past histories will be available here")
         with st.expander("Add a customer"):
-            add_customer(username)
+            add_customer()
         with st.expander("update existing customer"):
             update_customer_data()
     elif dash=="Distribution House management":
@@ -897,7 +896,7 @@ def user_dashboard(username):
         elif choices=="Order Management":
             st.title("Here, order will be managed")
             with st.expander("Add a new customer"):
-                add_customer(username)
+                add_customer()
             with st.expander("update existing customer"):
                 update_customer_data()
         elif choices=="Product Management":
