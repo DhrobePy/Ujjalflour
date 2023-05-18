@@ -212,7 +212,7 @@ def update_customer_data():
     address = st.text_input("Address", value=selected_customer['address'])
     location = st.text_input("Location", value=selected_customer['location'])
     rm_name = st.text_input("RM Name", value=selected_customer['rm_name'])
-    previous_due_amount = st.number_input("Previous Due Amount", min_value=0.0, step=0.01, value=selected_customer['previous_due_amount'])
+    previous_due_amount = st.number_input("Previous Due Amount", min_value=0.0, step=0.01, value=selected_customer['previous_due_amount'],key='u1')
 
     # Submit updated data
     if st.button("Update Customer Data"):
