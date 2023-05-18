@@ -915,7 +915,7 @@ def admin_dashboard():
 
     elif dash=="Order Management":
         st.subheader("orders will be managed with brief summary")
-        add_order_form()
+        add_order(username, customer=None)
         
     elif dash=="Product Management":
         st.subheader("Product will be managed with brief summary")
@@ -978,7 +978,7 @@ def user_dashboard(username):
                 add_customer()
             with st.expander("update existing customer"):
                 update_customer_data()
-            add_order_form()
+            add_order(username, customer=None)
         elif choices=="Product Management":
             st.title("Products and stocks will be maintained from here")
     if st.button("Logout"):
