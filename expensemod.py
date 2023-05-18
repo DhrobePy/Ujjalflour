@@ -932,9 +932,8 @@ def admin_dashboard():
                 display_approved_expenses()
 
     elif dash=="Order Management":
-        st.subheader("orders will be managed with brief summary") 
-        with st.expander("Add new order"):
-            add_order_form()
+        st.subheader("orders will be managed with brief summary")
+        add_order_form()
         
     elif dash=="Product Management":
         st.subheader("Product will be managed with brief summary")
@@ -995,10 +994,9 @@ def user_dashboard(username):
             st.title("Here, order will be managed")
             with st.expander("Add a new customer"):
                 add_customer()
-            with st.expander("Add a new Order"):
-                add_order_form()
             with st.expander("update existing customer"):
                 update_customer_data()
+            add_order_form
         elif choices=="Product Management":
             st.title("Products and stocks will be maintained from here")
     if st.button("Logout"):
