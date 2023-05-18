@@ -20,6 +20,41 @@ db = firestore.client()
 
 
 ######order management######
+def admin_view_orders():
+    st.subheader("Pending Orders")
+
+    # Fetch the pending orders
+    orders = [doc.to_dict() for doc in db.collection('orders').stream()]
+
+    if not orders:
+        st.write("No pending orders.")
+        return
+
+    for order in orders:
+        # Generate an order DataFrame for display
+        order_df = pd.DataFrame(order, index=[0])
+        st.table(order_df.transpose())
+
+        # Unique identifier for each order
+        order_id = order['id']
+
+        if st.button(f"Approve Order {order_id}"):
+            # Move the order to 'approved_orders'
+            db.collection('approved_orders').document(order_id).set(order)
+
+            # Delete the order from 'orders'
+            db.collection('orders').document(order_id).delete()
+
+            st.success(f"Order {order_id} has been approved and moved to approved orders.")
+
+        if st.button(f"Reject Order {order_id}"):
+            # Delete the order from 'orders'
+            db.collection('orders').document(order_id).delete()
+
+            st.error(f"Order {order_id} has been rejected and removed from pending orders.")
+
+
+
 def add_order_form():
     st.subheader("Add Order for a Customer")
 
@@ -936,6 +971,7 @@ def admin_dashboard():
     elif dash=="Order Management":
         st.subheader("orders will be managed with brief summary")
         add_order_form()
+        admin_view_orders()
         
     elif dash=="Product Management":
         st.subheader("Product will be managed with brief summary")
