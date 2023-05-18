@@ -753,7 +753,8 @@ def admin_dashboard():
             
         elif choice=="Expense Report":
             st.write("Expense Reports from all users")
-            display_approved_expenses()
+            with st.expander("Show approved expenses"):
+                display_approved_expenses()
 
     elif dash=="Order Management":
         st.subheader("orders will be managed with brief summary")      
