@@ -17,9 +17,89 @@ cred = credentials.Certificate("exensefinal.json")
 #firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+##### customer management#####
 
+def add_customer(username):
+    st.subheader("Add a New Customer")
 
+    customer_name = st.text_input("Customer Name")
+    phone_number = st.text_input("Phone Number")
+    address = st.text_input("Address")
+    location = st.text_input("Location")
+    rm_name = st.text_input("RM Name")
+    previous_due_amount = st.number_input("Previous Due Amount", min_value=0.0, step=0.01, value=0.0)
 
+    if st.button("Submit"):
+        if customer_name and phone_number and address and location and rm_name:
+            customer_id = customer_name.split(" ")[1] + phone_number[-4:]
+            customer_data = {
+                "username": username,
+                "customer_name": customer_name,
+                "phone_number": phone_number,
+                "address": address,
+                "location": location,
+                "rm_name": rm_name,
+                "previous_due_amount": previous_due_amount,
+                "customer_id": customer_id,
+            }
+
+            # Add the customer data to the Firestore database
+            db.collection("customers").add(customer_data)
+
+            st.success("Customer added successfully!")
+        else:
+            st.error("Please fill in all the fields.")
+
+def update_customer_data():
+    st.subheader("Update or Delete Customer Data")
+
+    # Fetch all customer data
+    docs = db.collection('customers').stream()
+    customers = [doc.to_dict() for doc in docs]
+
+    # If no customers, display message
+    if not customers:
+        st.write("No customers found.")
+        return
+
+    # Select customer
+    selected_customer_id = st.selectbox(
+        "Select customer to update or delete",
+        options=[customer['customer_id'] for customer in customers]
+    )
+    
+    # Find selected customer
+    selected_customer = next((customer for customer in customers if customer['customer_id'] == selected_customer_id), None)
+    if not selected_customer:
+        st.error(f"No customer found with ID: {selected_customer_id}")
+        return
+
+    # Show editable fields
+    customer_name = st.text_input("Customer Name", value=selected_customer['customer_name'])
+    phone_number = st.text_input("Phone Number", value=selected_customer['phone_number'])
+    address = st.text_input("Address", value=selected_customer['address'])
+    location = st.text_input("Location", value=selected_customer['location'])
+    rm_name = st.text_input("RM Name", value=selected_customer['rm_name'])
+    previous_due_amount = st.number_input("Previous Due Amount", min_value=0.0, step=0.01, value=selected_customer['previous_due_amount'])
+
+    # Submit updated data
+    if st.button("Update Customer Data"):
+        updated_data = {
+            "customer_name": customer_name,
+            "phone_number": phone_number,
+            "address": address,
+            "location": location,
+            "rm_name": rm_name,
+            "previous_due_amount": previous_due_amount,
+        }
+        # Update Firestore document
+        db.collection('customers').document(selected_customer_id).update(updated_data)
+        st.success("Customer data updated successfully!")
+
+    # Delete customer
+    if st.button("Delete Customer Data"):
+        db.collection('customers').document(selected_customer_id).delete()
+        st.success("Customer data deleted successfully!")
 
 
 ########3 Expense Report functions#########
@@ -763,7 +843,10 @@ def admin_dashboard():
         st.subheader("Product will be managed with brief summary")
     elif dash=="Customer Management":
         st.subheader("list of customers with their dues and past histories will be available here")
-
+        with st.expander("Add a customer"):
+            add_customer(username)
+        with st.expander("update existing customer"):
+            update_customer_data()
     elif dash=="Distribution House management":
         st.write("Detailed Management of Distribution House")
      
@@ -813,6 +896,10 @@ def user_dashboard(username):
                     show_approved_expenses()
         elif choices=="Order Management":
             st.title("Here, order will be managed")
+            with st.expander("Add a new customer"):
+                add_customer(username)
+            with st.expander("update existing customer"):
+                update_customer_data()
         elif choices=="Product Management":
             st.title("Products and stocks will be maintained from here")
     if st.button("Logout"):
